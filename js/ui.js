@@ -11,3 +11,9 @@ export function renderizarPosts(posts) {
     });
 }
 
+//spinner básico
+export function renderLoading() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "<li>Cargando...</li>";
+}
+

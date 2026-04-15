@@ -1,9 +1,10 @@
 import { getPosts } from "./api.js";
-import { renderizarPosts } from "./ui.js";
+import { renderizarPosts, renderLoading } from "./ui.js";
 
 async function init() {
-  const posts = await getPosts();
-  renderizarPosts(posts);
+    renderLoading();
+    const posts = await getPosts();
+    renderizarPosts(posts);
 }
 
 init(); // init es la función que inicia el código
