@@ -182,3 +182,17 @@ export function manejarToggleFavorito(postId) {
         boton.dataset.activo = esFavorito(postId) ? "true" : "false";
     }
 }
+
+export function inicializarEventos() {
+    document.getElementById("input-autor-busqueda")
+        .addEventListener("input", manejarBusquedaAutor);
+
+    document.getElementById("select-tag")
+        .addEventListener("change", manejarFiltroTag);
+
+    document.getElementById("select-orden")
+        .addEventListener("change", manejarOrden);
+
+    document.getElementById("contenedor-paginacion")
+        .addEventListener("click", manejarPaginacion);
+}

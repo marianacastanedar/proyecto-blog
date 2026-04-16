@@ -1,11 +1,16 @@
 
-import { getPosts } from "./api.js";
-import { renderizarPosts, renderLoading } from "./ui.js";
+import { cargarPaginaPrincipal, cargarTags, inicializarEventos } from "./home.js";
+import { navegarACrear } from "./router.js";
 
 async function init() {
-    renderLoading();
-    const posts = await getPosts();
-    renderizarPosts(posts);
+    await cargarTags();
+    await cargarPaginaPrincipal();
+    inicializarEventos();
+    
+    document.getElementById("btn-crear")
+        .addEventListener("click", () =>
+            navegarACrear());
+
 }
 
 init(); // init es la función que inicia el código
