@@ -67,8 +67,8 @@ export function renderizarDetalle(post, autor) {
     });
 
     document.getElementById("btn-eliminar").addEventListener("click", () => {
-    import("./router.js").then(router => {
-        router.manejarEliminar(post.id);
+    import("./detail.js").then(detail => {
+        detail.manejarEliminar(post.id);
     });
 });
 }
