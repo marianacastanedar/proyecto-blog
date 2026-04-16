@@ -1,3 +1,5 @@
+// ── Estado global de la aplicación ───────────────────────────────────────────
+
 export const state = {
     // Paginación
     paginaActual: 1,
@@ -7,14 +9,13 @@ export const state = {
     // Filtros
     textoBusqueda: "",
     tagSeleccionado: "",
-    ordenarPor: "default", 
+    ordenarPor: "default", // "default" | "likes" | "views" | "title"
 
-    // Posts en memoria (la página que se está mostrando)
-    postsActuales: [],
-
-    // Favoritos: guardados en localStorage para que persistan
+    // Favoritos: guardados en localStorage para que persistan entre sesiones
     favoritos: cargarFavoritos(),
 };
+
+// ── Helpers de paginación ─────────────────────────────────────────────────────
 
 export function getTotalPaginas() {
     return Math.ceil(state.totalPosts / state.postsPorPagina);
@@ -23,6 +24,8 @@ export function getTotalPaginas() {
 export function getSkip() {
     return (state.paginaActual - 1) * state.postsPorPagina;
 }
+
+// ── Helpers de favoritos ──────────────────────────────────────────────────────
 
 function cargarFavoritos() {
     try {
@@ -51,21 +54,6 @@ function guardarFavoritos() {
     try {
         localStorage.setItem("favoritos", JSON.stringify(state.favoritos));
     } catch {
-        console.error("No se pudieron guardar los favoritos en localStorage.");
+        console.error("No se pudieron guardar los favoritos.");
     }
-}
-
-export function hayFiltrosActivos() {
-    return (
-        state.textoBusqueda !== "" ||
-        state.tagSeleccionado !== "" ||
-        state.ordenarPor !== "default"
-    );
-}
-
-export function resetFiltros() {
-    state.textoBusqueda = "";
-    state.tagSeleccionado = "";
-    state.ordenarPor = "default";
-    state.paginaActual = 1;
 }
