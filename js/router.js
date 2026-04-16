@@ -1,4 +1,4 @@
-import { getPostById, getUserById, createPost, updatePost } from "./api.js";
+import { getPostById, getUserById, createPost, updatePost, deletePost } from "./api.js";
 import { renderizarDetalle, renderDetalleLoading, renderDetalleError, renderizarFormularioCrear, renderizarFormularioEditar, renderEditarLoading, mostrarToast } from "./ui.js";
 import { validarFormularioCrear, validarFormularioEditar } from "./validation.js";
 
@@ -112,4 +112,17 @@ async function configurarFormularioEditar(post, autor) {
             mostrarToast("Error al actualizar el post. Intenta de nuevo.");
         }
     });
+}
+
+export async function manejarEliminar(id) {
+    const confirmado = confirm("¿Estás seguro de que querés eliminar esta publicación?");
+    if (!confirmado) return;
+
+    try {
+        await deletePost(id);
+        mostrarToast("Publicación eliminada correctamente.");
+        setTimeout(() => navegarALista(), 1500);
+    } catch (error) {
+        mostrarToast("Error al eliminar la publicación. Intentá de nuevo.");
+    }
 }

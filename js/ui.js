@@ -34,6 +34,7 @@ export function renderizarDetalle(post, autor) {
         <p>Me gusta: ${post.reactions.likes}</p>
         <p>No me gusta: ${post.reactions.dislikes}</p>
         <button id="btn-editar">Editar</button>
+        <button id="btn-eliminar">Eliminar</button>
         <button id="btn-regresar">Regresar</button>
     `;
  
@@ -48,6 +49,12 @@ export function renderizarDetalle(post, autor) {
             router.navegarAEditar(post, autor);
         });
     });
+
+    document.getElementById("btn-eliminar").addEventListener("click", () => {
+    import("./router.js").then(router => {
+        router.manejarEliminar(post.id);
+    });
+});
 }
 
 export function renderDetalleLoading() {

@@ -67,3 +67,54 @@ export async function updatePost(id, titulo, autor, contenido) {
     const data = await res.json();
     return data;
 }
+
+
+export async function searchPosts(query) {
+    try {
+        const res = await fetch(`https://dummyjson.com/posts/search?q=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        return { posts: data.posts, total: data.total };
+    } catch (error) {
+        console.error("Error al buscar posts: ", error);
+        throw error;
+    }
+}
+ 
+
+export async function getPostsByTag(tag) {
+    try {
+        const res = await fetch(`https://dummyjson.com/posts/tag/${encodeURIComponent(tag)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        return { posts: data.posts, total: data.total };
+    } catch (error) {
+        console.error("Error al filtrar por tag: ", error);
+        throw error;
+    }
+}
+ 
+
+export async function getTags() {
+    try {
+        const res = await fetch("https://dummyjson.com/posts/tags");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (error) {
+        console.error("Error al obtener los tags: ", error);
+        throw error;
+    }
+}
+ 
+export async function deletePost(id) {
+    try {
+        const res = await fetch(`https://dummyjson.com/posts/${id}`, {
+            method: "DELETE"
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (error) {
+        console.error("Error al eliminar el post: ", error);
+        throw error;
+    }
+}
