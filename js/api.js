@@ -1,7 +1,7 @@
-//const URL_API = "https://dummyjson.com";
-export async function getPosts() {
+export async function getPosts({ limit = 10, skip = 0 } = {}) {
     try {
-        const res = await fetch("https://dummyjson.com/posts");
+        const res = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         return data.posts;
     } catch (error) {
@@ -13,8 +13,8 @@ export async function getPosts() {
 export async function getPostById(id) {
     try {
         const res = await fetch(`https://dummyjson.com/posts/${id}`);
-        const data = await res.json();
-        return data;
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
     } catch (error) {
         console.error("Error al obtener el post: ", error);
         throw error;
