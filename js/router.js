@@ -1,5 +1,5 @@
 import { getPostById, getUserById, createPost, updatePost, deletePost } from "./api.js";
-import { renderizarDetalle, renderDetalleLoading, renderDetalleError, renderizarFormularioCrear, renderizarFormularioEditar, renderEditarLoading, mostrarToast } from "./ui.js";
+import { renderizarDetalle, renderDetalleLoading, renderDetalleError, renderizarFormularioCrear, renderizarFormularioEditar, renderEditarLoading, mostrarToast, agregarPostAlInicio, actualizarPostEnLista, eliminarPostDeLista } from "./ui.js";
 import { validarFormularioCrear, validarFormularioEditar } from "./validation.js";
 
 export function navegarADetalle(id) {
@@ -74,6 +74,8 @@ async function configurarFormularioCrear() {
 
             const autorFicticio = { firstName: autor, lastName: "" };
 
+            agregarPostAlInicio(postNuevo);
+
             setTimeout(() => {
                 navegarADetalleConDatos(postNuevo, autorFicticio);
             }, 1500);
@@ -105,6 +107,8 @@ async function configurarFormularioEditar(post, autor) {
             const autorActualizado = { firstName: autorNombre, lastName: "" };
             const postFinal = { ...post, ...postActualizado };
 
+            actualizarPostEnLista(postFinal, autorActualizado);
+
             navegarADetalleConDatos(postFinal, autorActualizado);
             mostrarToast("¡Post actualizado con éxito!");
         } catch (error) {
@@ -120,6 +124,7 @@ export async function manejarEliminar(id) {
 
     try {
         await deletePost(id);
+        eliminarPostDeLista(id);
         mostrarToast("Publicación eliminada correctamente.");
         setTimeout(() => navegarALista(), 1500);
     } catch (error) {

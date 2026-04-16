@@ -4,6 +4,7 @@ export function renderizarPosts(posts, esFavorito = () => false) {
 
     posts.forEach(post => {
         const li = document.createElement("li");
+        li.dataset.postId = post.id;
         li.textContent = post.title;
         li.style.cursor = "pointer";
 
@@ -195,4 +196,38 @@ export function renderSugerencias(opciones, onSeleccionar) {
         item.addEventListener("click", () => onSeleccionar(opcion));
         contenedor.appendChild(item);
     });
+}
+
+export function agregarPostAlInicio(post) {
+    const lista = document.getElementById("lista");
+    const li = document.createElement("li");
+    li.dataset.postId = post.id;
+    li.textContent = post.title;
+    li.style.cursor = "pointer";
+    li.addEventListener("click", () => {
+        import("./router.js").then(router => {
+            router.navegarADetalle(post.id);
+        });
+    });
+    lista.insertBefore(li, lista.firstChild);
+}
+
+export function actualizarPostEnLista(postFinal, autorActualizado) {
+    const li = document.querySelector(`[data-post-id="${postFinal.id}"]`);
+    if (!li) return;
+    li.textContent = postFinal.title;
+
+    const liNuevo = li.cloneNode(true);
+    li.parentNode.replaceChild(liNuevo, li);
+
+    liNuevo.addEventListener("click", () => {
+        import("./router.js").then(router => {
+            router.navegarADetalleConDatos(postFinal, autorActualizado);
+        });
+    });
+}
+
+export function eliminarPostDeLista(postId) {
+    const li = document.querySelector(`[data-post-id="${postId}"]`);
+    if (li) li.remove();
 }
