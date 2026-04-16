@@ -1,5 +1,5 @@
-import { getPosts, searchPosts, getPostsByTag, searchUsers, getPostsByUserId } from "./api.js";
-import { state, getTotalPaginas, getSkip, resetFiltros, toggleFavorito, esFavorito } from "./state.js";
+import { getPosts, getPostsByTag, searchUsers, getPostsByUserId, getTags } from "./api.js";
+import { state, getTotalPaginas, getSkip, toggleFavorito, esFavorito } from "./state.js";
 import {
     renderizarPosts,
     renderLoading,

@@ -1,21 +1,17 @@
-// ── Estado global de la aplicación ───────────────────────────────────────────
-
 export const state = {
     // Paginación
     paginaActual: 1,
     postsPorPagina: 10,
     totalPosts: 0,
 
-    // Filtros
-    textoBusqueda: "",
-    tagSeleccionado: "",
-    ordenarPor: "default", // "default" | "likes" | "views" | "title"
+    autorSeleccionado: null,
 
-    // Favoritos: guardados en localStorage para que persistan entre sesiones
+    tagSeleccionado: "",
+    
+    ordenarPor: "default",
+
     favoritos: cargarFavoritos(),
 };
-
-// ── Helpers de paginación ─────────────────────────────────────────────────────
 
 export function getTotalPaginas() {
     return Math.ceil(state.totalPosts / state.postsPorPagina);
@@ -25,7 +21,11 @@ export function getSkip() {
     return (state.paginaActual - 1) * state.postsPorPagina;
 }
 
-// ── Helpers de favoritos ──────────────────────────────────────────────────────
+export function resetFiltros() {
+    state.autorSeleccionado = null;
+    state.tagSeleccionado = "";
+    state.paginaActual = 1;
+}
 
 function cargarFavoritos() {
     try {
