@@ -2,7 +2,7 @@ export async function getPosts({ limit = 10, skip = 0 } = {}) {
         const res = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-    return { post: data.posts, total: data.total };
+    return { posts: data.posts, total: data.total };
 }
 
 export async function getPostById(id) {

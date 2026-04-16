@@ -32,6 +32,9 @@ export async function cargarPaginaPrincipal() {
                 skip: getSkip(),
             });
             state.totalPosts = resultado.total;
+            console.log("resultado:", resultado);
+            console.log("posts:", resultado.posts);
+            console.log("total:", resultado.total);
         }
 
         if (resultado.posts.length === 0) {

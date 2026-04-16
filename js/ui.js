@@ -27,6 +27,16 @@ export function renderLoading() {
     lista.innerHTML = "<li>Cargando...</li>";
 }
 
+export function renderError(mensaje) {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = `<li>${mensaje}</li>`;
+}
+
+export function renderVacio() {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "<li>No se encontraron publicaciones.</li>";
+}
+
 export function renderizarDetalle(post, autor) {
     const contenedor = document.getElementById("detalle-contenido");
  
@@ -140,4 +150,49 @@ export function renderizarFormularioEditar(post, autor) {
 export function renderEditarLoading(activo) {
     const overlay = document.getElementById("editar-overlay");
     overlay.style.display = activo ? "flex" : "none";
+}
+
+export function renderPaginacion(paginaActual, totalPaginas) {
+    const contenedor = document.getElementById("contenedor-paginacion");
+    contenedor.innerHTML = "";
+
+    if (totalPaginas <= 1) return;
+
+    const btnAnterior = document.createElement("button");
+    btnAnterior.textContent = "Anterior";
+    btnAnterior.dataset.pagina = "anterior";
+    btnAnterior.disabled = paginaActual === 1;
+    contenedor.appendChild(btnAnterior);
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        btn.dataset.pagina = i;
+        if (i === paginaActual) btn.disabled = true;
+        contenedor.appendChild(btn);
+    }
+
+    const btnSiguiente = document.createElement("button");
+    btnSiguiente.textContent = "Siguiente";
+    btnSiguiente.dataset.pagina = "siguiente";
+    btnSiguiente.disabled = paginaActual === totalPaginas;
+    contenedor.appendChild(btnSiguiente);
+}
+
+export function renderSugerencias(opciones, onSeleccionar) {
+    const contenedor = document.getElementById("sugerencias");
+    contenedor.innerHTML = "";
+
+    if (opciones.length === 0) {
+        contenedor.innerHTML = "<p>No se encontraron resultados.</p>";
+        return;
+    }
+
+    opciones.forEach(opcion => {
+        const item = document.createElement("div");
+        item.textContent = opcion.label;
+        item.style.cursor = "pointer";
+        item.addEventListener("click", () => onSeleccionar(opcion));
+        contenedor.appendChild(item);
+    });
 }
