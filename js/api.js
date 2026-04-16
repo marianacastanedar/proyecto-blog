@@ -50,3 +50,20 @@ export async function createPost(titulo, autor, contenido) {
     const data = await res.json();
     return data;
 }
+
+export async function updatePost(id, titulo, autor, contenido) {
+    const res = await fetch(`https://dummyjson.com/posts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            title: titulo,
+            body: contenido,
+            userId: autor
+        })
+    });
+ 
+    if (!res.ok) throw new Error("Error al actualizar el post");
+ 
+    const data = await res.json();
+    return data;
+}

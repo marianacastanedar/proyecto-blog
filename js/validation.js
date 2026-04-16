@@ -36,3 +36,37 @@ function limpiarErrores() {
         if (el) el.textContent = "";
     });
 }
+
+
+export function validarFormularioEditar() {
+    let esValido = true;
+ 
+    const titulo = document.getElementById("edit-titulo").value.trim();
+    const autor = document.getElementById("edit-autor").value.trim();
+    const contenido = document.getElementById("edit-contenido").value.trim();
+ 
+    const errorTitulo = document.getElementById("edit-error-titulo");
+    const errorAutor = document.getElementById("edit-error-autor");
+    const errorContenido = document.getElementById("edit-error-contenido");
+ 
+    errorTitulo.textContent = "";
+    errorAutor.textContent = "";
+    errorContenido.textContent = "";
+ 
+    if (titulo.length < 5) {
+        errorTitulo.textContent = "El título debe tener al menos 5 caracteres.";
+        esValido = false;
+    }
+ 
+    if (autor.length === 0) {
+        errorAutor.textContent = "El nombre del autor no puede estar vacío.";
+        esValido = false;
+    }
+ 
+    if (contenido.length < 20) {
+        errorContenido.textContent = "El contenido debe tener al menos 20 caracteres.";
+        esValido = false;
+    }
+ 
+    return esValido;
+}
