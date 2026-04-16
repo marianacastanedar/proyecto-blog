@@ -31,3 +31,22 @@ export async function getUserById(id) {
         throw error;
     }
 }
+
+export async function createPost(titulo, autor, contenido) {
+    const res = await fetch("https://dummyjson.com/posts/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            title: titulo,
+            body: contenido,
+            userId: 1,
+            tags: [],
+            reactions: { likes: 0, dislikes: 0 }
+        })
+    });
+
+    if (!res.ok) throw new Error("Error al crear el post");
+
+    const data = await res.json();
+    return data;
+}

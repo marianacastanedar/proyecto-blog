@@ -1,3 +1,4 @@
+
 import { getPosts } from "./api.js";
 import { renderizarPosts, renderLoading } from "./ui.js";
 
@@ -8,3 +9,9 @@ async function init() {
 }
 
 init(); // init es la función que inicia el código
+/*
+import { navegarACrear } from "./router.js";
+
+navegarACrear();
+
+*/
