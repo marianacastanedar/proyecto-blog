@@ -18,30 +18,26 @@ export async function cargarPaginaPrincipal() {
     try {
         let resultado;
 
-        if (state.tipoFiltro === "autor" && state.autorSeleccionado) {
-            // Autor seleccionado: traemos sus posts desde la API
+        if (state.autorSeleccionado) {
+            // Filtro por autor activo
             resultado = await getPostsByUserId(state.autorSeleccionado.id);
             resultado.posts = paginarEnCliente(resultado.posts);
+            state.totalPosts = resultado.total;
 
-        } else if (state.tipoFiltro === "tag" && state.tagSeleccionado !== "") {
-            // Filtro por tag
+        } else if (state.tagSeleccionado !== "") {
+            // Filtro por categoría activo
             resultado = await getPostsByTag(state.tagSeleccionado);
             resultado.posts = paginarEnCliente(resultado.posts);
-
-        } else if (state.tipoFiltro === "titulo" && state.textoBusqueda !== "") {
-            // Búsqueda por título
-            resultado = await searchPosts(state.textoBusqueda);
-            resultado.posts = paginarEnCliente(resultado.posts);
+            state.totalPosts = resultado.total;
 
         } else {
-            // Sin filtros activos: paginación del servidor
+            // Sin filtros: paginación del servidor
             resultado = await getPosts({
                 limit: state.postsPorPagina,
                 skip: getSkip(),
             });
+            state.totalPosts = resultado.total;
         }
-
-        state.totalPosts = resultado.total;
 
         const postsOrdenados = ordenarPosts(resultado.posts);
 
@@ -55,6 +51,24 @@ export async function cargarPaginaPrincipal() {
 
     } catch (error) {
         renderError("No se pudieron cargar los posts. Revisá tu conexión e intentá de nuevo.");
+    }
+}
+
+// ── Llenar dropdown de tags ───────────────────────────────────────────────────
+
+export async function cargarTags() {
+    try {
+        const tags = await getTags();
+        const select = document.getElementById("select-tag");
+
+        tags.forEach(tag => {
+            const option = document.createElement("option");
+            option.value = tag.slug;
+            option.textContent = tag.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        // Si falla, el dropdown queda solo con "Todas las categorías"
     }
 }
 
@@ -84,85 +98,26 @@ function ordenarPosts(posts) {
 
 // ── Manejadores de eventos ────────────────────────────────────────────────────
 
-export function manejarCambioTipoFiltro(event) {
-    resetFiltros();
-    state.tipoFiltro = event.target.value;
-
-    // Limpiar el input de búsqueda y sugerencias
-    const inputBusqueda = document.getElementById("input-busqueda");
-    const selectTag = document.getElementById("select-tag");
-
-    if (inputBusqueda) inputBusqueda.value = "";
-    if (selectTag) selectTag.value = "";
-
-    limpiarSugerencias();
-
-    // Mostrar u ocultar el selector de tags según el tipo
-    actualizarVisibilidadFiltros();
-
-    cargarPaginaPrincipal();
-}
-
-export function actualizarVisibilidadFiltros() {
-    const contenedorInput = document.getElementById("contenedor-input-busqueda");
-    const contenedorTag = document.getElementById("contenedor-select-tag");
-
-    if (!contenedorInput || !contenedorTag) return;
-
-    if (state.tipoFiltro === "tag") {
-        contenedorInput.style.display = "none";
-        contenedorTag.style.display = "inline-block";
-    } else {
-        contenedorInput.style.display = "inline-block";
-        contenedorTag.style.display = "none";
-
-        // Actualizar placeholder según el tipo
-        const inputBusqueda = document.getElementById("input-busqueda");
-        if (inputBusqueda) {
-            inputBusqueda.placeholder =
-                state.tipoFiltro === "autor"
-                    ? "Buscar por nombre de autor..."
-                    : "Buscar por título...";
-        }
-    }
-}
-
-// Búsqueda por título (igual que antes)
-export async function manejarBusqueda(event) {
-    const valor = event.target.value.trim();
-
-    if (state.tipoFiltro === "autor") {
-        await manejarBusquedaAutor(valor);
-        return;
-    }
-
-    // Búsqueda por título
-    state.textoBusqueda = valor;
-    state.paginaActual = 1;
-    await cargarPaginaPrincipal();
-}
-
-// Búsqueda por autor: muestra sugerencias mientras escribe
 let timeoutBusquedaAutor = null;
 
-async function manejarBusquedaAutor(valor) {
-    // Si limpió el input, resetear autor y recargar
+export async function manejarBusquedaAutor(event) {
+    const valor = event.target.value.trim();
+
     if (valor === "") {
         state.autorSeleccionado = null;
-        state.textoBusqueda = "";
         state.paginaActual = 1;
         limpiarSugerencias();
         await cargarPaginaPrincipal();
         return;
     }
 
-    // Si hay un autor ya seleccionado y cambió el texto, deseleccionar
+    // Si había un autor seleccionado y cambió el texto, deseleccionarlo
     if (state.autorSeleccionado) {
         state.autorSeleccionado = null;
         state.paginaActual = 1;
     }
 
-    // Debounce para no hacer fetch en cada tecla
+    // Debounce: espera 300ms antes de buscar
     clearTimeout(timeoutBusquedaAutor);
     timeoutBusquedaAutor = setTimeout(async () => {
         try {
@@ -174,18 +129,15 @@ async function manejarBusquedaAutor(valor) {
     }, 300);
 }
 
-// Cuando el usuario hace click en una sugerencia de autor
 async function seleccionarAutor(usuario) {
     state.autorSeleccionado = {
         id: usuario.id,
         nombre: `${usuario.firstName} ${usuario.lastName}`,
     };
-    state.textoBusqueda = "";
     state.paginaActual = 1;
 
-    // Poner el nombre en el input y cerrar sugerencias
-    const inputBusqueda = document.getElementById("input-busqueda");
-    if (inputBusqueda) inputBusqueda.value = state.autorSeleccionado.nombre;
+    const input = document.getElementById("input-autor-busqueda");
+    if (input) input.value = state.autorSeleccionado.nombre;
     limpiarSugerencias();
 
     await cargarPaginaPrincipal();
