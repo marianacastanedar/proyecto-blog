@@ -8,8 +8,7 @@ async function init() {
     inicializarEventos();
     
     document.getElementById("btn-crear")
-        .addEventListener("click", () =>
-            navegarACrear());
+        .addEventListener("click", () => navegarACrear());
 
 }
 

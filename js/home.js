@@ -6,11 +6,9 @@ import {
     renderError,
     renderVacio,
     renderPaginacion,
-    renderSugerenciasAutor,
+    renderSugerencias,
     limpiarSugerencias,
 } from "./ui.js";
-
-// ── Carga principal ───────────────────────────────────────────────────────────
 
 export async function cargarPaginaPrincipal() {
     renderLoading();
@@ -19,19 +17,16 @@ export async function cargarPaginaPrincipal() {
         let resultado;
 
         if (state.autorSeleccionado) {
-            // Filtro por autor activo
             resultado = await getPostsByUserId(state.autorSeleccionado.id);
             resultado.posts = paginarEnCliente(resultado.posts);
             state.totalPosts = resultado.total;
 
         } else if (state.tagSeleccionado !== "") {
-            // Filtro por categoría activo
             resultado = await getPostsByTag(state.tagSeleccionado);
             resultado.posts = paginarEnCliente(resultado.posts);
             state.totalPosts = resultado.total;
 
         } else {
-            // Sin filtros: paginación del servidor
             resultado = await getPosts({
                 limit: state.postsPorPagina,
                 skip: getSkip(),
@@ -39,12 +34,10 @@ export async function cargarPaginaPrincipal() {
             state.totalPosts = resultado.total;
         }
 
-        const postsOrdenados = ordenarPosts(resultado.posts);
-
-        if (postsOrdenados.length === 0) {
+        if (resultado.posts.length === 0) {
             renderVacio();
         } else {
-            renderizarPosts(postsOrdenados, esFavorito);
+            renderizarPosts(resultado.posts, esFavorito);
         }
 
         renderPaginacion(state.paginaActual, getTotalPaginas());
@@ -54,104 +47,111 @@ export async function cargarPaginaPrincipal() {
     }
 }
 
-// ── Llenar dropdown de tags ───────────────────────────────────────────────────
+let todosLosTags = [];
 
 export async function cargarTags() {
     try {
-        const tags = await getTags();
-        const select = document.getElementById("select-tag");
-
-        tags.forEach(tag => {
-            const option = document.createElement("option");
-            option.value = tag.slug;
-            option.textContent = tag.name;
-            select.appendChild(option);
-        });
-    } catch (error) {
-        // Si falla, el dropdown queda solo con "Todas las categorías"
+        todosLosTags = await getTags();
+    } catch {
+        todosLosTags = [];
     }
 }
 
-// ── Paginación en cliente ─────────────────────────────────────────────────────
+function buscarSugerenciasTags(valor) {
+    return todosLosTags.filter(tag =>
+        tag.name.toLowerCase().includes(valor.toLowerCase())
+    );
+}
+
 
 function paginarEnCliente(posts) {
     const inicio = getSkip();
     return posts.slice(inicio, inicio + state.postsPorPagina);
 }
 
-// ── Ordenamiento en cliente ───────────────────────────────────────────────────
 
-function ordenarPosts(posts) {
-    const copia = [...posts];
+let timeoutBusqueda = null;
 
-    switch (state.ordenarPor) {
-        case "likes":
-            return copia.sort((a, b) => b.reactions.likes - a.reactions.likes);
-        case "views":
-            return copia.sort((a, b) => b.views - a.views);
-        case "title":
-            return copia.sort((a, b) => a.title.localeCompare(b.title));
-        default:
-            return copia;
-    }
+export function manejarCambioTipoFiltro() {
+    // Limpiar estado y UI al cambiar de tipo
+    state.autorSeleccionado = null;
+    state.tagSeleccionado = "";
+    state.paginaActual = 1;
+    limpiarSugerencias();
+
+    const input = document.getElementById("input-busqueda");
+    input.value = "";
+
+    const tipo = document.getElementById("select-tipo-filtro").value;
+    input.placeholder = tipo === "autor" ? "Buscar por autor..." : "Buscar por categoría...";
+
+    cargarPaginaPrincipal();
 }
 
-// ── Manejadores de eventos ────────────────────────────────────────────────────
-
-let timeoutBusquedaAutor = null;
-
-export async function manejarBusquedaAutor(event) {
+export async function manejarBusqueda(event) {
     const valor = event.target.value.trim();
+    const tipo = document.getElementById("select-tipo-filtro").value;
 
     if (valor === "") {
         state.autorSeleccionado = null;
+        state.tagSeleccionado = "";
         state.paginaActual = 1;
         limpiarSugerencias();
         await cargarPaginaPrincipal();
         return;
     }
 
-    // Si había un autor seleccionado y cambió el texto, deseleccionarlo
-    if (state.autorSeleccionado) {
+    // Deseleccionar si cambió el texto
+    if (tipo === "autor" && state.autorSeleccionado) {
         state.autorSeleccionado = null;
         state.paginaActual = 1;
     }
+    if (tipo === "categoria" && state.tagSeleccionado) {
+        state.tagSeleccionado = "";
+        state.paginaActual = 1;
+    }
 
-    // Debounce: espera 300ms antes de buscar
-    clearTimeout(timeoutBusquedaAutor);
-    timeoutBusquedaAutor = setTimeout(async () => {
-        try {
-            const resultado = await searchUsers(valor);
-            renderSugerenciasAutor(resultado.users, seleccionarAutor);
-        } catch {
-            limpiarSugerencias();
+    clearTimeout(timeoutBusqueda);
+    timeoutBusqueda = setTimeout(async () => {
+        if (tipo === "autor") {
+            try {
+                const resultado = await searchUsers(valor);
+                renderSugerencias(resultado.users.map(u => ({
+                    id: u.id,
+                    label: `${u.firstName} ${u.lastName}`,
+                    original: u
+                })), seleccionarOpcion);
+            } catch {
+                limpiarSugerencias();
+            }
+        } else {
+            const tagsFiltrados = buscarSugerenciasTags(valor);
+            renderSugerencias(tagsFiltrados.map(t => ({
+                id: t.slug,
+                label: t.name,
+                original: t
+            })), seleccionarOpcion);
         }
     }, 300);
 }
 
-async function seleccionarAutor(usuario) {
-    state.autorSeleccionado = {
-        id: usuario.id,
-        nombre: `${usuario.firstName} ${usuario.lastName}`,
-    };
-    state.paginaActual = 1;
+async function seleccionarOpcion(opcion) {
+    const tipo = document.getElementById("select-tipo-filtro").value;
+    const input = document.getElementById("input-busqueda");
 
-    const input = document.getElementById("input-autor-busqueda");
-    if (input) input.value = state.autorSeleccionado.nombre;
+    if (tipo === "autor") {
+        state.autorSeleccionado = {
+            id: opcion.original.id,
+            nombre: opcion.label,
+        };
+    } else {
+        state.tagSeleccionado = opcion.original.slug;
+    }
+
+    state.paginaActual = 1;
+    input.value = opcion.label;
     limpiarSugerencias();
 
-    await cargarPaginaPrincipal();
-}
-
-export async function manejarFiltroTag(event) {
-    state.tagSeleccionado = event.target.value;
-    state.paginaActual = 1;
-    await cargarPaginaPrincipal();
-}
-
-export async function manejarOrden(event) {
-    state.ordenarPor = event.target.value;
-    state.paginaActual = 1;
     await cargarPaginaPrincipal();
 }
 
@@ -176,7 +176,6 @@ export async function manejarPaginacion(event) {
 
 export function manejarToggleFavorito(postId) {
     toggleFavorito(postId);
-
     const boton = document.querySelector(`[data-favorito-id="${postId}"]`);
     if (boton) {
         boton.dataset.activo = esFavorito(postId) ? "true" : "false";
@@ -184,14 +183,11 @@ export function manejarToggleFavorito(postId) {
 }
 
 export function inicializarEventos() {
-    document.getElementById("input-autor-busqueda")
-        .addEventListener("input", manejarBusquedaAutor);
+    document.getElementById("select-tipo-filtro")
+        .addEventListener("change", manejarCambioTipoFiltro);
 
-    document.getElementById("select-tag")
-        .addEventListener("change", manejarFiltroTag);
-
-    document.getElementById("select-orden")
-        .addEventListener("change", manejarOrden);
+    document.getElementById("input-busqueda")
+        .addEventListener("input", manejarBusqueda);
 
     document.getElementById("contenedor-paginacion")
         .addEventListener("click", manejarPaginacion);
