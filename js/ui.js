@@ -40,26 +40,36 @@ export function renderVacio() {
 
 export function renderizarDetalle(post, autor) {
     const contenedor = document.getElementById("detalle-contenido");
- 
+
     contenedor.innerHTML = `
         <h1>${post.title}</h1>
-        <p>Por: ${autor.firstName} ${autor.lastName}</p>
-        <p>Vistas: ${post.views}</p>
-        <p>Categorías: ${post.tags.join(", ")}</p>
-        <p>Contenido: ${post.body}</p>
-        <p>Me gusta: ${post.reactions.likes}</p>
-        <p>No me gusta: ${post.reactions.dislikes}</p>
-        <button id="btn-editar">Editar</button>
-        <button id="btn-eliminar">Eliminar</button>
-        <button id="btn-regresar">Regresar</button>
+        <p class="detalle-autor">Por: ${autor.firstName} ${autor.lastName}</p>
+
+        <button class="detalle-fav-btn" data-favorito-id="${post.id}" data-activo="false">
+            ☆ Agregar a favoritos
+        </button>
+
+        <p class="detalle-meta">Vistas: ${post.views}</p>
+        <p class="detalle-tags"><strong>Categoría:</strong> ${post.tags.join(", ")}</p>
+        <p class="detalle-body">Contenido: ${post.body}</p>
+        <p class="detalle-reactions">Me gusta: ${post.reactions.likes}</p>
+        <p class="detalle-reactions">No me gusta: ${post.reactions.dislikes}</p>
+
+        <div class="detalle-acciones">
+            <div class="detalle-acciones-izq">
+                <button id="btn-editar">Editar</button>
+                <button id="btn-eliminar">Eliminar</button>
+            </div>
+            <button id="btn-regresar">Regresar a inicio</button>
+        </div>
     `;
- 
+
     document.getElementById("btn-regresar").addEventListener("click", () => {
         import("./router.js").then(router => {
             router.navegarALista();
         });
     });
- 
+
     document.getElementById("btn-editar").addEventListener("click", () => {
         import("./router.js").then(router => {
             router.navegarAEditar(post, autor);
@@ -67,10 +77,10 @@ export function renderizarDetalle(post, autor) {
     });
 
     document.getElementById("btn-eliminar").addEventListener("click", () => {
-    import("./detail.js").then(detail => {
-        detail.manejarEliminar(post.id);
+        import("./detail.js").then(detail => {
+            detail.manejarEliminar(post.id);
+        });
     });
-});
 }
 
 export function renderDetalleLoading() {
@@ -90,19 +100,28 @@ export function renderizarFormularioCrear() {
         <h1>¡Bienvenido!</h1>
         <p>Comparte tu post :)</p>
 
-        <label for="input-titulo">Título</label>
-        <input id="input-titulo" type="text" placeholder="Escribe un título para tu post, necesitas mínimo 5 caracteres" />
-        <span id="error-titulo"></span>
+        <div class="form-inner">
+            <div>
+                <label for="input-titulo">Título</label>
+                <input id="input-titulo" type="text" placeholder="Escribe un título para tu post :p" />
+                <span id="error-titulo"></span>
+            </div>
 
-        <label for="input-autor">Nombre del autor</label>
-        <input id="input-autor" type="text" placeholder="Escribe tu nombre o apodo" />
-        <span id="error-autor"></span>
+            <div>
+                <label for="input-autor">Nombre del autor</label>
+                <input id="input-autor" type="text" placeholder="Escribe tu nombre o apodo" />
+                <span id="error-autor"></span>
+            </div>
 
-        <label for="input-contenido">Contenido</label>
-        <textarea id="input-contenido" placeholder="¡Cuéntanos que piensas! Recuerda agregar más de 20 caracteres"></textarea>
-        <span id="error-contenido"></span>
+            <div>
+                <label for="input-contenido">Contenido</label>
+                <textarea id="input-contenido" placeholder="¡Cuéntanos que piensas! Recuerda agregar más de 20 caracteres"></textarea>
+                <span id="error-contenido"></span>
+            </div>
 
-        <button id="btn-guardar">Guardar</button>
+            <button id="btn-guardar">Guardar</button>
+        </div>
+
         <button id="btn-regresar-crear">Regresar</button>
     `;
 
@@ -125,29 +144,36 @@ export function mostrarToast(mensaje) {
 
 export function renderizarFormularioEditar(post, autor) {
     const contenedor = document.getElementById("editar-contenido");
- 
+
     contenedor.innerHTML = `
         <h1>Edita este post</h1>
         <p>Reescribe los campos para modificarlos</p>
- 
-        <label for="edit-titulo">Título</label>
-        <input id="edit-titulo" type="text" value="${post.title}" />
-        <span id="edit-error-titulo"></span>
- 
-        <label for="edit-autor">Nombre del autor</label>
-        <input id="edit-autor" type="text" value="${autor.firstName} ${autor.lastName}" />
-        <span id="edit-error-autor"></span>
- 
-        <label for="edit-contenido">Contenido</label>
-        <textarea id="edit-contenido">${post.body}</textarea>
-        <span id="edit-error-contenido"></span>
- 
-        <button id="btn-guardar-editar">Guardar</button>
-        <button id="btn-cancelar-editar">Cancelar</button>
+
+        <div>
+            <label for="edit-titulo">Título</label>
+            <input id="edit-titulo" type="text" value="${post.title}" />
+            <span id="edit-error-titulo"></span>
+        </div>
+
+        <div>
+            <label for="edit-autor">Nombre del autor</label>
+            <input id="edit-autor" type="text" value="${autor.firstName} ${autor.lastName}" />
+            <span id="edit-error-autor"></span>
+        </div>
+
+        <div>
+            <label for="edit-contenido">Contenido</label>
+            <textarea id="edit-contenido">${post.body}</textarea>
+            <span id="edit-error-contenido"></span>
+        </div>
+
+        <div class="editar-acciones">
+            <button id="btn-guardar-editar">Guardar</button>
+            <button id="btn-cancelar-editar">Cancelar</button>
+        </div>
     `;
 }
- 
- 
+
 export function renderEditarLoading(activo) {
     const overlay = document.getElementById("editar-overlay");
     overlay.style.display = activo ? "flex" : "none";

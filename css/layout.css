@@ -1,0 +1,45 @@
+.navbar {
+    background-color: var(--color-blue-light);
+    padding: 18px 36px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--color-blue);
+    letter-spacing: -1px;
+    user-select: none;
+}
+
+#vista-crear {
+    min-height: calc(100vh);
+    background: var(--grad-create);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+#vista-detalle {
+    min-height: calc(100vh - 70px);
+    background: var(--grad-detail);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+#vista-editar {
+    min-height: calc(100vh - 70px);
+    background: var(--grad-detail);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    position: relative;
+}

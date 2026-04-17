@@ -30,6 +30,11 @@ export function navegarAEditar(post, autor) {
 
 function mostrarSolo(vistaId) {
     ["vista-lista", "vista-detalle", "vista-crear", "vista-editar"].forEach(id => {
-        document.getElementById(id).style.display = id === vistaId ? "block" : "none";
+        const el = document.getElementById(id);
+        if (id === vistaId) {
+            el.style.display = id === "vista-lista" ? "block" : "flex";
+        } else {
+            el.style.display = "none";
+        }
     });
 }
