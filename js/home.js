@@ -50,6 +50,28 @@ export async function cargarPaginaPrincipal() {
     }
 }
 
+async function enriquecerConAutor(posts) {
+    const userIds = [...new Set(posts.map(p => p.userId).filter(Boolean))];
+ 
+    // Traer todos los usuarios únicos en paralelo
+    const usuariosMap = {};
+    await Promise.all(
+        userIds.map(async (id) => {
+            try {
+                const usuario = await getUserById(id);
+                usuariosMap[id] = `${usuario.firstName} ${usuario.lastName}`;
+            } catch {
+                usuariosMap[id] = "Autor desconocido";
+            }
+        })
+    );
+ 
+    return posts.map(post => ({
+        ...post,
+        autor: usuariosMap[post.userId] ?? "Autor desconocido",
+    }));
+}
+
 let todosLosTags = [];
 
 export async function cargarTags() {
@@ -72,11 +94,10 @@ function paginarEnCliente(posts) {
     return posts.slice(inicio, inicio + state.postsPorPagina);
 }
 
-
 let timeoutBusqueda = null;
 
 export function manejarCambioTipoFiltro() {
-    // Limpiar estado y UI al cambiar de tipo
+
     state.autorSeleccionado = null;
     state.tagSeleccionado = "";
     state.paginaActual = 1;
@@ -86,14 +107,25 @@ export function manejarCambioTipoFiltro() {
     input.value = "";
 
     const tipo = document.getElementById("select-tipo-filtro").value;
+
+    if (tipo === "ninguno") {
+        input.disabled = true;
+        input.placeholder = "Sin filtro activo";
+        cargarPaginaPrincipal();
+        return;
+    }
+
+    input.disabled = false;
     input.placeholder = tipo === "autor" ? "Buscar por autor..." : "Buscar por categoría...";
 
     cargarPaginaPrincipal();
 }
 
 export async function manejarBusqueda(event) {
-    const valor = event.target.value.trim();
     const tipo = document.getElementById("select-tipo-filtro").value;
+    if (tipo === "ninguno") return;
+
+    const valor = event.target.value.trim();
 
     if (valor === "") {
         state.autorSeleccionado = null;
@@ -179,10 +211,6 @@ export async function manejarPaginacion(event) {
 
 export function manejarToggleFavorito(postId) {
     toggleFavorito(postId);
-    const boton = document.querySelector(`[data-favorito-id="${postId}"]`);
-    if (boton) {
-        boton.dataset.activo = esFavorito(postId) ? "true" : "false";
-    }
 }
 
 export function inicializarEventos() {

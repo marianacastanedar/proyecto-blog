@@ -21,6 +21,7 @@
 
         <div id="controles-filtros">
             <select id="select-tipo-filtro">
+                <option value="ninguno">Ninguno filtro</option>
                 <option value="autor">Autor</option>
                 <option value="categoria">Categoría</option>
             </select>
@@ -30,7 +31,10 @@
                 <div id="sugerencias"></div>
             </div>
 
-            <button id="btn-crear">Nueva publicación</button>
+            <button id="btn-favoritos">
+                <span class="fav-star">★</span>
+                Ver Favoritos...
+            </button>
         </div>
 
         <ul id="lista"></ul>
@@ -54,6 +58,8 @@
     </div>
 
     <div id="toast" style="display:none"></div>
+
+    <button id="btn-crear" title="Nueva publicación">&#43;</button>
 
     <script type="module" src="js/main.js"></script>
 </body>

@@ -5,15 +5,45 @@ export function renderizarPosts(posts, esFavorito = () => false) {
     posts.forEach(post => {
         const li = document.createElement("li");
         li.dataset.postId = post.id;
-        li.textContent = post.title;
-        li.style.cursor = "pointer";
+ 
+        const descripcion = post.body
+            ? post.body.slice(0, 80) + (post.body.length > 80 ? "…" : "")
+            : "";
+ 
+        const activo = esFavorito(post.id) ? "true" : "false";
+        const starIcon = esFavorito(post.id) ? "★" : "☆";
+ 
+        li.innerHTML = `
+            <button class="post-card-fav" data-favorito-id="${post.id}" data-activo="${activo}" title="Favorito">
+                ${starIcon}
+            </button>
+            <p class="post-card-title">${post.title}</p>
+            <p class="post-card-autor">${post.autor ?? "Autor"}</p>
+            <p class="post-card-desc">${descripcion}</p>
+            <button class="post-card-btn">Detalles</button>
+        `;
+ 
+        li.classList.add("post-card");
 
-        li.addEventListener("click", () => {
+        li.addEventListener("click", (e) => {
+            if (e.target.closest(".post-card-fav")) return;
             import("./router.js").then(router => {
                 router.navegarADetalle(post.id);
             });
         });
-
+ 
+        li.querySelector(".post-card-fav").addEventListener("click", (e) => {
+            e.stopPropagation();
+            import("./home.js").then(home => {
+                home.manejarToggleFavorito(post.id);
+                // Actualizar ícono en el botón
+                const btn = e.currentTarget;
+                const ahora = btn.dataset.activo === "true";
+                btn.dataset.activo = ahora ? "false" : "true";
+                btn.textContent = ahora ? "☆" : "★";
+            });
+        });
+ 
         lista.appendChild(li);
     });
 }
@@ -21,6 +51,23 @@ export function renderizarPosts(posts, esFavorito = () => false) {
 export function limpiarSugerencias() {
     const contenedor = document.getElementById("sugerencias");
     if (contenedor) contenedor.innerHTML = "";
+}
+
+export function renderSugerencias(opciones, onSeleccionar) {
+    const contenedor = document.getElementById("sugerencias");
+    contenedor.innerHTML = "";
+ 
+    if (opciones.length === 0) {
+        contenedor.innerHTML = "<p>No se encontraron resultados.</p>";
+        return;
+    }
+ 
+    opciones.forEach(opcion => {
+        const item = document.createElement("div");
+        item.textContent = opcion.label;
+        item.addEventListener("click", () => onSeleccionar(opcion));
+        contenedor.appendChild(item);
+    });
 }
 
 export function renderLoading() {
@@ -90,7 +137,7 @@ export function renderDetalleLoading() {
 
 export function renderDetalleError() {
     const contenedor = document.getElementById("detalle-contenido");
-    contenedor.innerHTML = "<p>Error al cargar el post. Intenta de nuevo.</p>";
+    contenedor.innerHTML = "<p>Error al cargar el post.</p>";
 }
 
 export function renderizarFormularioCrear() {
@@ -182,46 +229,62 @@ export function renderEditarLoading(activo) {
 export function renderPaginacion(paginaActual, totalPaginas) {
     const contenedor = document.getElementById("contenedor-paginacion");
     contenedor.innerHTML = "";
-
+ 
     if (totalPaginas <= 1) return;
-
+ 
+    // Función auxiliar para crear botón de número
+    const crearBtnNumero = (num) => {
+        const btn = document.createElement("button");
+        btn.textContent = num;
+        btn.dataset.pagina = num;
+        if (num === paginaActual) btn.disabled = true;
+        return btn;
+    };
+ 
+    // Función auxiliar para crear "..."
+    const crearEllipsis = () => {
+        const span = document.createElement("button");
+        span.textContent = "…";
+        span.classList.add("pag-ellipsis");
+        span.disabled = true;
+        return span;
+    };
+ 
+    // Botón anterior
     const btnAnterior = document.createElement("button");
-    btnAnterior.textContent = "Anterior";
+    btnAnterior.textContent = "‹";
     btnAnterior.dataset.pagina = "anterior";
+    btnAnterior.classList.add("pag-arrow");
     btnAnterior.disabled = paginaActual === 1;
     contenedor.appendChild(btnAnterior);
-
-    for (let i = 1; i <= totalPaginas; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        btn.dataset.pagina = i;
-        if (i === paginaActual) btn.disabled = true;
-        contenedor.appendChild(btn);
+ 
+    // Calcular qué números mostrar
+    // Siempre mostramos: primera, última, y las 3 alrededor de la actual
+    const paginas = new Set();
+    paginas.add(1);
+    paginas.add(totalPaginas);
+    for (let i = Math.max(1, paginaActual - 1); i <= Math.min(totalPaginas, paginaActual + 1); i++) {
+        paginas.add(i);
     }
+ 
+    const paginasOrdenadas = [...paginas].sort((a, b) => a - b);
+ 
+    let anterior = 0;
+    paginasOrdenadas.forEach(num => {
+        // Si hay un salto de más de 1, agregar "..."
+        if (num - anterior > 1) {
+            contenedor.appendChild(crearEllipsis());
+        }
+        contenedor.appendChild(crearBtnNumero(num));
+        anterior = num;
+    });
 
     const btnSiguiente = document.createElement("button");
-    btnSiguiente.textContent = "Siguiente";
+    btnSiguiente.textContent = "›";
     btnSiguiente.dataset.pagina = "siguiente";
+    btnSiguiente.classList.add("pag-arrow");
     btnSiguiente.disabled = paginaActual === totalPaginas;
     contenedor.appendChild(btnSiguiente);
-}
-
-export function renderSugerencias(opciones, onSeleccionar) {
-    const contenedor = document.getElementById("sugerencias");
-    contenedor.innerHTML = "";
-
-    if (opciones.length === 0) {
-        contenedor.innerHTML = "<p>No se encontraron resultados.</p>";
-        return;
-    }
-
-    opciones.forEach(opcion => {
-        const item = document.createElement("div");
-        item.textContent = opcion.label;
-        item.style.cursor = "pointer";
-        item.addEventListener("click", () => onSeleccionar(opcion));
-        contenedor.appendChild(item);
-    });
 }
 
 export function agregarPostAlInicio(post) {
