@@ -9,8 +9,8 @@
     --color-green:     #6BC743;
     --color-btn-ghost: #E8F3FF;
 
-    --grad-create: linear-gradient(160deg, #003068 0%, #93C5FF 55%, #C5E0FF 82%);
-    --grad-detail: linear-gradient(160deg, #003068 0%, #93C5FF 55%, #FFFBF3 82%);
+    --grad-create: linear-gradient(to bottom, #003068 0%, #93C5FF 55%, #C5E0FF 82%);
+    --grad-detail: linear-gradient(to bottom, #003068 0%, #93C5FF 55%, #FFFBF3 82%);
 
     --radius-card: 18px;
     --radius-input: 8px;
