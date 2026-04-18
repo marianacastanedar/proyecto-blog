@@ -17,6 +17,13 @@ export async function getUserById(id) {
     return await res.json(); 
 }
 
+export async function getAllUsers() {
+    const res = await fetch(`https://dummyjson.com/users?limit=0`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data.users;
+}
+
 export async function searchUsers(query) {
     const res = await fetch(`https://dummyjson.com/users/search?q=${encodeURIComponent(query)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -36,7 +36,6 @@ export function renderizarPosts(posts, esFavorito = () => false) {
             e.stopPropagation();
             import("./home.js").then(home => {
                 home.manejarToggleFavorito(post.id);
-                // Actualizar ícono en el botón
                 const btn = e.currentTarget;
                 const ahora = btn.dataset.activo === "true";
                 btn.dataset.activo = ahora ? "false" : "true";
@@ -304,14 +303,44 @@ export function agregarPostAlInicio(post) {
 export function actualizarPostEnLista(postFinal, autorActualizado) {
     const li = document.querySelector(`[data-post-id="${postFinal.id}"]`);
     if (!li) return;
-    li.textContent = postFinal.title;
-
-    const liNuevo = li.cloneNode(true);
-    li.parentNode.replaceChild(liNuevo, li);
-
-    liNuevo.addEventListener("click", () => {
+ 
+    const descripcion = postFinal.body
+        ? postFinal.body.slice(0, 80) + (postFinal.body.length > 80 ? "…" : "")
+        : "";
+ 
+    const nombreAutor = autorActualizado.firstName
+        ? `${autorActualizado.firstName} ${autorActualizado.lastName ?? ""}`.trim()
+        : (postFinal.autor ?? "Autor");
+ 
+    const favBtn = li.querySelector(".post-card-fav");
+    const activo = favBtn ? favBtn.dataset.activo : "false";
+    const starIcon = activo === "true" ? "★" : "☆";
+ 
+    li.innerHTML = `
+        <button class="post-card-fav" data-favorito-id="${postFinal.id}" data-activo="${activo}" title="Favorito">
+            ${starIcon}
+        </button>
+        <p class="post-card-title">${postFinal.title}</p>
+        <p class="post-card-autor">${nombreAutor}</p>
+        <p class="post-card-desc">${descripcion}</p>
+        <button class="post-card-btn">Detalles</button>
+    `;
+ 
+    li.addEventListener("click", (e) => {
+        if (e.target.closest(".post-card-fav")) return;
         import("./router.js").then(router => {
             router.navegarADetalleConDatos(postFinal, autorActualizado);
+        });
+    });
+ 
+    li.querySelector(".post-card-fav").addEventListener("click", (e) => {
+        e.stopPropagation();
+        import("./home.js").then(home => {
+            home.manejarToggleFavorito(postFinal.id);
+            const btn = e.currentTarget;
+            const ahora = btn.dataset.activo === "true";
+            btn.dataset.activo = ahora ? "false" : "true";
+            btn.textContent = ahora ? "☆" : "★";
         });
     });
 }

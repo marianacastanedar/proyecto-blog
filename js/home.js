@@ -1,4 +1,4 @@
-import { getPosts, getPostsByTag, searchUsers, getPostsByUserId, getTags } from "./api.js";
+import { getPosts, getPostsByTag, searchUsers, getPostsByUserId, getTags, getAllUsers } from "./api.js";
 import { state, getTotalPaginas, getSkip, toggleFavorito, esFavorito } from "./state.js";
 import {
     renderizarPosts,
@@ -9,6 +9,30 @@ import {
     renderSugerencias,
     limpiarSugerencias,
 } from "./ui.js";
+
+let usuariosCache = null;
+
+async function obtenerUsuariosMap() {
+    if (usuariosCache) return usuariosCache;
+    try {
+        const usuarios = await getAllUsers();
+        usuariosCache = {};
+        usuarios.forEach(u => {
+            usuariosCache[u.id] = `${u.firstName} ${u.lastName}`;
+        });
+    } catch {
+        usuariosCache = {};
+    }
+    return usuariosCache;
+}
+ 
+async function enriquecerConAutor(posts) {
+    const usuariosMap = await obtenerUsuariosMap();
+    return posts.map(post => ({
+        ...post,
+        autor: usuariosMap[post.userId] ?? "Autor desconocido",
+    }));
+}
 
 export async function cargarPaginaPrincipal() {
     renderLoading();
@@ -32,44 +56,21 @@ export async function cargarPaginaPrincipal() {
                 skip: getSkip(),
             });
             state.totalPosts = resultado.total;
-            console.log("resultado:", resultado);
-            console.log("posts:", resultado.posts);
-            console.log("total:", resultado.total);
         }
 
+        resultado.posts = await enriquecerConAutor(resultado.posts);
+ 
         if (resultado.posts.length === 0) {
             renderVacio();
         } else {
             renderizarPosts(resultado.posts, esFavorito);
         }
-
+ 
         renderPaginacion(state.paginaActual, getTotalPaginas());
 
     } catch (error) {
         renderError("No se pudieron cargar los posts. Revisá tu conexión e intentá de nuevo.");
     }
-}
-
-async function enriquecerConAutor(posts) {
-    const userIds = [...new Set(posts.map(p => p.userId).filter(Boolean))];
- 
-    // Traer todos los usuarios únicos en paralelo
-    const usuariosMap = {};
-    await Promise.all(
-        userIds.map(async (id) => {
-            try {
-                const usuario = await getUserById(id);
-                usuariosMap[id] = `${usuario.firstName} ${usuario.lastName}`;
-            } catch {
-                usuariosMap[id] = "Autor desconocido";
-            }
-        })
-    );
- 
-    return posts.map(post => ({
-        ...post,
-        autor: usuariosMap[post.userId] ?? "Autor desconocido",
-    }));
 }
 
 let todosLosTags = [];
