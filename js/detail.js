@@ -1,5 +1,5 @@
 import { getPostById, getUserById, deletePost } from "./api.js";
-import { renderizarDetalle, renderDetalleLoading, renderDetalleError, mostrarToast, eliminarPostDeLista } from "./ui.js";
+import { renderizarDetalle, renderDetalleLoading, renderDetalleError, mostrarToast, eliminarPostDeLista, mostrarModalConfirmar } from "./ui.js";
 import { navegarALista, navegarAEditar } from "./router.js";
 
 export async function cargarDetalle(id) {
@@ -14,7 +14,7 @@ export async function cargarDetalle(id) {
 }
 
 export async function manejarEliminar(id) {
-    const confirmado = confirm("¿Estás seguro de que querés eliminar esta publicación?");
+    const confirmado = await mostrarModalConfirmar();
     if (!confirmado) return;
 
     try {

@@ -397,3 +397,30 @@ export function eliminarPostDeLista(postId) {
     const li = document.querySelector(`[data-post-id="${postId}"]`);
     if (li) li.remove();
 }
+
+export function mostrarModalConfirmar(mensaje = "¿Estás segurísimo que deseas eliminar el post?") {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("modal-confirmar");
+        document.getElementById("modal-mensaje").textContent = mensaje;
+        modal.style.display = "flex";
+
+        const btnSi = document.getElementById("modal-confirmar-si");
+        const btnNo = document.getElementById("modal-confirmar-no");
+
+        const limpiar = () => {
+            modal.style.display = "none";
+            btnSi.replaceWith(btnSi.cloneNode(true));
+            btnNo.replaceWith(btnNo.cloneNode(true));
+        };
+
+        document.getElementById("modal-confirmar-si").addEventListener("click", () => {
+            limpiar();
+            resolve(true);
+        });
+
+        document.getElementById("modal-confirmar-no").addEventListener("click", () => {
+            limpiar();
+            resolve(false);
+        });
+    });
+}
