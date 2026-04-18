@@ -40,6 +40,8 @@
         <ul id="lista"></ul>
 
         <div id="contenedor-paginacion"></div>
+
+        <button id="btn-crear" title="Nueva publicación">&#43;</button>
     </div>
 
     <div id="vista-detalle" style="display:none">
@@ -57,9 +59,17 @@
         <div id="editar-contenido"></div>
     </div>
 
-    <div id="toast" style="display:none"></div>
+    <div id="vista-favoritos" style="display:none">
+        <div class="favoritos-topbar">
+            <h1><span class="fav-star-titulo">★</span> Favoritos</h1>
+            <button id="btn-regresar-favoritos">← Regresar al inicio</button>
+        </div>
+        <p id="favoritos-vacio" style="display:none">No tienes favoritos aún.</p>
+        <ul id="lista-favoritos"></ul>
+        <div id="contenedor-paginacion-favoritos"></div>
+    </div>
 
-    <button id="btn-crear" title="Nueva publicación">&#43;</button>
+    <div id="toast" style="display:none"></div>
 
     <script type="module" src="js/main.js"></script>
 </body>

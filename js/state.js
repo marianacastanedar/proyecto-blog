@@ -11,6 +11,8 @@ export const state = {
     ordenarPor: "default",
 
     favoritos: cargarFavoritos(),
+
+    paginaFavoritos: 1,
 };
 
 export function getTotalPaginas() {
@@ -30,24 +32,21 @@ export function resetFiltros() {
 function cargarFavoritos() {
     try {
         const guardados = localStorage.getItem("favoritos");
-        return guardados ? JSON.parse(guardados) : [];
+        if (!guardados) return {};
+
+        const parsed = JSON.parse(guardados);
+
+        // Si el formato guardado es un array (formato viejo),
+        // lo borra del localStorage y devuelve objeto vacío
+        if (Array.isArray(parsed)) {
+            localStorage.removeItem("favoritos");
+            return {};
+        }
+
+        return parsed;
     } catch {
-        return [];
+        return {};
     }
-}
-
-export function toggleFavorito(postId) {
-    const index = state.favoritos.indexOf(postId);
-    if (index === -1) {
-        state.favoritos.push(postId);
-    } else {
-        state.favoritos.splice(index, 1);
-    }
-    guardarFavoritos();
-}
-
-export function esFavorito(postId) {
-    return state.favoritos.includes(postId);
 }
 
 function guardarFavoritos() {
@@ -56,4 +55,30 @@ function guardarFavoritos() {
     } catch {
         console.error("No se pudieron guardar los favoritos.");
     }
+}
+
+export function toggleFavorito(post) {
+    const id = post.id;
+    if (state.favoritos[id]) {
+        delete state.favoritos[id];
+    } else {
+        state.favoritos[id] = post;
+    }
+    guardarFavoritos();
+}
+
+export function esFavorito(postId) {
+    return !!state.favoritos[postId];
+}
+ 
+export function getFavoritos() {
+    return Object.values(state.favoritos);
+}
+ 
+export function getTotalFavoritos() {
+    return Object.keys(state.favoritos).length;
+}
+ 
+export function getTotalPaginasFavoritos(postsPorPagina) {
+    return Math.ceil(getTotalFavoritos() / postsPorPagina);
 }

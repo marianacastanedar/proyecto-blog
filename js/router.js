@@ -1,6 +1,7 @@
 import { cargarDetalle } from "./detail.js";
 import { configurarFormularioCrear, configurarFormularioEditar } from "./forms.js";
 import { renderizarDetalle, renderizarFormularioCrear, renderizarFormularioEditar } from "./ui.js";
+import { cargarVistaFavoritos } from "./favorites.js";
 
 export function navegarADetalle(id) {
     mostrarSolo("vista-detalle");
@@ -28,8 +29,13 @@ export function navegarAEditar(post, autor) {
     configurarFormularioEditar(post, autor);
 }
 
+export function navegarAFavoritos() {
+    mostrarSolo("vista-favoritos");
+    cargarVistaFavoritos();
+}
+
 function mostrarSolo(vistaId) {
-    ["vista-lista", "vista-detalle", "vista-crear", "vista-editar"].forEach(id => {
+    ["vista-lista", "vista-detalle", "vista-crear", "vista-editar", "vista-favoritos"].forEach(id => {
         const el = document.getElementById(id);
         if (id === vistaId) {
             el.style.display = id === "vista-lista" ? "block" : "flex";

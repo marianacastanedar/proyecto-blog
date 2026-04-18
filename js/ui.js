@@ -1,3 +1,6 @@
+import { esFavorito, toggleFavorito } from "./state.js";
+import { sincronizarEstrellaEnHome } from "./favorites.js";
+
 export function renderizarPosts(posts, esFavorito = () => false) {
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
@@ -34,13 +37,12 @@ export function renderizarPosts(posts, esFavorito = () => false) {
  
         li.querySelector(".post-card-fav").addEventListener("click", (e) => {
             e.stopPropagation();
-            import("./home.js").then(home => {
-                home.manejarToggleFavorito(post.id);
-                const btn = e.currentTarget;
-                const ahora = btn.dataset.activo === "true";
-                btn.dataset.activo = ahora ? "false" : "true";
-                btn.textContent = ahora ? "☆" : "★";
-            });
+            const btn = e.currentTarget;
+            const ahora = btn.dataset.activo === "true";
+            const nuevoEstado = !ahora;
+            toggleFavorito(post);
+            btn.dataset.activo = nuevoEstado ? "true" : "false";
+            btn.textContent = nuevoEstado ? "★" : "☆";
         });
  
         lista.appendChild(li);
@@ -87,12 +89,15 @@ export function renderVacio() {
 export function renderizarDetalle(post, autor) {
     const contenedor = document.getElementById("detalle-contenido");
 
+    const esFav = esFavorito(post.id);
+    const favTexto = esFav ? "★ Quitar de favoritos" : "☆ Agregar a favoritos";
+
     contenedor.innerHTML = `
         <h1>${post.title}</h1>
         <p class="detalle-autor">Por: ${autor.firstName} ${autor.lastName}</p>
 
-        <button class="detalle-fav-btn" data-favorito-id="${post.id}" data-activo="false">
-            ☆ Agregar a favoritos
+        <button class="detalle-fav-btn" id="btn-fav-detalle" data-activo="${esFav}">
+            ${favTexto}
         </button>
 
         <p class="detalle-meta">Vistas: ${post.views}</p>
@@ -109,6 +114,18 @@ export function renderizarDetalle(post, autor) {
             <button id="btn-regresar">Regresar a inicio</button>
         </div>
     `;
+
+    document.getElementById("btn-fav-detalle").addEventListener("click", (e) => {
+        const btn = e.currentTarget;
+        const ahora = btn.dataset.activo === "true";
+        const nuevoEstado = !ahora;
+        const postConAutor = { ...post, autor: `${autor.firstName} ${autor.lastName}`.trim() };
+        toggleFavorito(postConAutor);
+        btn.dataset.activo = nuevoEstado ? "true" : "false";
+        btn.textContent = nuevoEstado ? "★ Quitar de favoritos" : "☆ Agregar a favoritos";
+        sincronizarEstrellaEnHome(post.id, nuevoEstado);
+        mostrarToast(nuevoEstado ? "Post agregado a favoritos." : "Post quitado de favoritos.");
+    });
 
     document.getElementById("btn-regresar").addEventListener("click", () => {
         import("./router.js").then(router => {
