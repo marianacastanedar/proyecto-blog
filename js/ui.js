@@ -348,20 +348,23 @@ export function agregarPostAlInicio(post) {
 export function actualizarPostEnLista(postFinal, autorActualizado) {
     const li = document.querySelector(`[data-post-id="${postFinal.id}"]`);
     if (!li) return;
- 
+
     const descripcion = postFinal.body
         ? postFinal.body.slice(0, 80) + (postFinal.body.length > 80 ? "…" : "")
         : "";
- 
+
     const nombreAutor = autorActualizado.firstName
         ? `${autorActualizado.firstName} ${autorActualizado.lastName ?? ""}`.trim()
         : (postFinal.autor ?? "Autor");
- 
+
     const favBtn = li.querySelector(".post-card-fav");
     const activo = favBtn ? favBtn.dataset.activo : "false";
     const starIcon = activo === "true" ? "★" : "☆";
- 
-    li.innerHTML = `
+
+    const liNuevo = li.cloneNode(false);
+    li.parentNode.replaceChild(liNuevo, li);
+
+    liNuevo.innerHTML = `
         <button class="post-card-fav" data-favorito-id="${postFinal.id}" data-activo="${activo}" title="Favorito">
             ${starIcon}
         </button>
@@ -370,15 +373,15 @@ export function actualizarPostEnLista(postFinal, autorActualizado) {
         <p class="post-card-desc">${descripcion}</p>
         <button class="post-card-btn">Detalles</button>
     `;
- 
-    li.addEventListener("click", (e) => {
+
+    liNuevo.addEventListener("click", (e) => {
         if (e.target.closest(".post-card-fav")) return;
         import("./router.js").then(router => {
             router.navegarADetalleConDatos(postFinal, autorActualizado);
         });
     });
- 
-    li.querySelector(".post-card-fav").addEventListener("click", (e) => {
+
+    liNuevo.querySelector(".post-card-fav").addEventListener("click", (e) => {
         e.stopPropagation();
         import("./home.js").then(home => {
             home.manejarToggleFavorito(postFinal.id);

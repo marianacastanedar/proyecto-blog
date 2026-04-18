@@ -50,3 +50,13 @@ export function getTotalFavoritos() {
 export function getTotalPaginasFavoritos(postsPorPagina) {
     return Math.ceil(getTotalFavoritos() / postsPorPagina);
 }
+
+export const postEditados = {};
+
+export function guardarPostEditado(post, autor) {
+    postEditados[post.id] = { post, autor };
+}
+
+export function getPostEditado(id) {
+    return postEditados[id] ?? null;
+}

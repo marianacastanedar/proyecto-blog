@@ -2,6 +2,7 @@ import { createPost, updatePost } from "./api.js";
 import { validarFormularioCrear, validarFormularioEditar } from "./validation.js";
 import { mostrarToast, agregarPostAlInicio, actualizarPostEnLista, renderEditarLoading } from "./ui.js";
 import { navegarADetalleConDatos, navegarALista } from "./router.js";
+import { guardarPostEditado } from "./state.js";
 
 export function configurarFormularioCrear() {
     document.getElementById("btn-guardar").addEventListener("click", async () => {
@@ -65,6 +66,7 @@ export function configurarFormularioEditar(post, autor) {
 
             renderEditarLoading(false);
             const autorActualizado = { firstName: autorNombre, lastName: "" };
+            guardarPostEditado(postFinal, autorActualizado)
             actualizarPostEnLista(postFinal, autorActualizado);
             navegarADetalleConDatos(postFinal, autorActualizado);
             mostrarToast("¡Post actualizado con éxito!");

@@ -1,6 +1,5 @@
 import { getPosts, getPostsByTag, searchUsers, getPostsByUserId, getTags, getAllUsers } from "./api.js";
-import { state, getTotalPaginas, getSkip, toggleFavorito, esFavorito } from "./state.js";
-import {
+import { state, getTotalPaginas, getSkip, toggleFavorito, esFavorito, getPostEditado } from "./state.js"; import {
     renderizarPosts,
     renderLoading,
     renderError,
@@ -25,7 +24,7 @@ async function obtenerUsuariosMap() {
     }
     return usuariosCache;
 }
- 
+
 async function enriquecerConAutor(posts) {
     const usuariosMap = await obtenerUsuariosMap();
     return posts.map(post => ({
@@ -59,13 +58,18 @@ export async function cargarPaginaPrincipal() {
         }
 
         resultado.posts = await enriquecerConAutor(resultado.posts);
- 
+
+        resultado.posts = resultado.posts.map(post => {
+            const editado = getPostEditado(post.id);
+            return editado ? editado.post : post;
+        });
+
         if (resultado.posts.length === 0) {
             renderVacio();
         } else {
             renderizarPosts(resultado.posts, esFavorito);
         }
- 
+
         renderPaginacion(state.paginaActual, getTotalPaginas());
 
     } catch (error) {
