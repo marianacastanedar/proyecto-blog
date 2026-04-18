@@ -51,7 +51,7 @@ export function configurarFormularioEditar(post, autor) {
         try {
             let postFinal;
 
-            if(post.esLocal) {
+            if (post.esLocal) {
                 postFinal = {
                     ...post,
                     title: titulo,
@@ -62,10 +62,9 @@ export function configurarFormularioEditar(post, autor) {
                 const postActualizado = await updatePost(post.id, titulo, autorNombre, contenido);
                 postFinal = { ...post, ...postActualizado };
             }
-             
+
             renderEditarLoading(false);
             const autorActualizado = { firstName: autorNombre, lastName: "" };
-            const postFinal = { ...post, ...postActualizado };
             actualizarPostEnLista(postFinal, autorActualizado);
             navegarADetalleConDatos(postFinal, autorActualizado);
             mostrarToast("¡Post actualizado con éxito!");
