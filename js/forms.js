@@ -14,7 +14,7 @@ export function configurarFormularioCrear() {
         try {
             const postNuevo = await createPost(titulo, autor, contenido);
             mostrarToast("¡Post creado con éxito!");
-            agregarPostAlInicio(postNuevo);
+            agregarPostAlInicio({ ...postNuevo, autor });
             setTimeout(() => navegarADetalleConDatos(postNuevo, { firstName: autor, lastName: "" }), 1500);
         } catch {
             mostrarToast("Error al crear el post. Intenta de nuevo.");

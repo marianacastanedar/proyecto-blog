@@ -1,11 +1,11 @@
-import { state, esFavorito, toggleFavorito, getFavoritos, getTotalPaginasFavoritos } from "./state.js";
-import { renderizarPosts, renderPaginacion, mostrarToast } from "./ui.js";
+import { state, toggleFavorito, getFavoritos, getTotalPaginasFavoritos } from "./state.js";
+import { mostrarToast } from "./ui.js";
 
 const POSTS_POR_PAGINA = 10;
 
 export function cargarVistaFavoritos() {
-    renderizarFavoritos();
     inicializarEventosFavoritos();
+    renderizarFavoritos();
 }
 
 function renderizarFavoritos() {
@@ -25,19 +25,17 @@ function renderizarFavoritos() {
 
     if (todos.length === 0) {
         lista.innerHTML = "";
-        vacio.style.display = "block";
+        vacio.style.display = "flex";
         contenedorPag.innerHTML = "";
         return;
     }
 
     vacio.style.display = "none";
-
     renderizarPostsEnLista(pagina, lista);
     renderPaginacionFavoritos(state.paginaFavoritos, totalPaginas, contenedorPag);
 }
 
-
-function renderizarPostsEnContenedor(posts, lista) {
+function renderizarPostsEnLista(posts, lista) {
     lista.innerHTML = "";
 
     posts.forEach(post => {
@@ -49,30 +47,30 @@ function renderizarPostsEnContenedor(posts, lista) {
             ? post.body.slice(0, 80) + (post.body.length > 80 ? "…" : "")
             : "";
 
+        const nombreAutor = typeof post.autor === "string"
+            ? post.autor
+            : "Autor";
+
         li.innerHTML = `
             <button class="post-card-fav" data-favorito-id="${post.id}" data-activo="true" title="Quitar de favoritos">
                 ★
             </button>
             <p class="post-card-title">${post.title}</p>
-            <p class="post-card-autor">${post.autor ?? "Autor"}</p>
+            <p class="post-card-autor">${nombreAutor}</p>
             <p class="post-card-desc">${descripcion}</p>
             <button class="post-card-btn">Detalles</button>
         `;
 
         li.addEventListener("click", (e) => {
             if (e.target.closest(".post-card-fav")) return;
-            import("./router.js").then(router => {
-                router.navegarADetalle(post.id);
-            });
+            import("./router.js").then(router => router.navegarADetalle(post.id));
         });
 
         li.querySelector(".post-card-fav").addEventListener("click", (e) => {
             e.stopPropagation();
             toggleFavorito(post);
             mostrarToast("Post quitado de favoritos.");
-
             sincronizarEstrellaEnHome(post.id, false);
-
             renderizarFavoritos();
         });
 
@@ -80,10 +78,10 @@ function renderizarPostsEnContenedor(posts, lista) {
     });
 }
 
-function renderPaginacionEnContenedor(paginaActual, totalPaginas, contenedor) {
+function renderPaginacionFavoritos(paginaActual, totalPaginas, contenedor) {
     contenedor.innerHTML = "";
     if (totalPaginas <= 1) return;
- 
+
     const crearBtnNumero = (num) => {
         const btn = document.createElement("button");
         btn.textContent = num;
@@ -91,7 +89,7 @@ function renderPaginacionEnContenedor(paginaActual, totalPaginas, contenedor) {
         if (num === paginaActual) btn.disabled = true;
         return btn;
     };
- 
+
     const crearEllipsis = () => {
         const btn = document.createElement("button");
         btn.textContent = "…";
@@ -99,38 +97,37 @@ function renderPaginacionEnContenedor(paginaActual, totalPaginas, contenedor) {
         btn.disabled = true;
         return btn;
     };
- 
+
     const btnAnterior = document.createElement("button");
     btnAnterior.textContent = "‹";
     btnAnterior.dataset.pagina = "anterior";
     btnAnterior.classList.add("pag-arrow");
     btnAnterior.disabled = paginaActual === 1;
     contenedor.appendChild(btnAnterior);
- 
+
     const paginas = new Set([1, totalPaginas]);
     for (let i = Math.max(1, paginaActual - 1); i <= Math.min(totalPaginas, paginaActual + 1); i++) {
         paginas.add(i);
     }
- 
+
     let anterior = 0;
     [...paginas].sort((a, b) => a - b).forEach(num => {
         if (num - anterior > 1) contenedor.appendChild(crearEllipsis());
         contenedor.appendChild(crearBtnNumero(num));
         anterior = num;
     });
- 
+
     const btnSiguiente = document.createElement("button");
     btnSiguiente.textContent = "›";
     btnSiguiente.dataset.pagina = "siguiente";
     btnSiguiente.classList.add("pag-arrow");
     btnSiguiente.disabled = paginaActual === totalPaginas;
-    contenedor.appendChild(btnSiguiente);;
+    contenedor.appendChild(btnSiguiente);
 }
 
 function inicializarEventosFavoritos() {
     const contenedor = document.getElementById("contenedor-paginacion-favoritos");
-
-    const nuevo = contenedor.cloneNode(true);
+    const nuevo = contenedor.cloneNode(false);
     contenedor.parentNode.replaceChild(nuevo, contenedor);
 
     nuevo.addEventListener("click", (e) => {
@@ -152,10 +149,12 @@ function inicializarEventosFavoritos() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    document.getElementById("btn-regresar-favoritos")
-        .addEventListener("click", () => {
-            import("./router.js").then(router => router.navegarALista());
-        });
+    const btnRegresar = document.getElementById("btn-regresar-favoritos");
+    const btnNuevo = btnRegresar.cloneNode(true);
+    btnRegresar.parentNode.replaceChild(btnNuevo, btnRegresar);
+    btnNuevo.addEventListener("click", () => {
+        import("./router.js").then(router => router.navegarALista());
+    });
 }
 
 export function sincronizarEstrellaEnHome(postId, esFav) {

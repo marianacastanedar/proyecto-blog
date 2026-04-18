@@ -275,7 +275,6 @@ export function renderPaginacion(paginaActual, totalPaginas) {
     contenedor.appendChild(btnAnterior);
  
     // Calcular qué números mostrar
-    // Siempre mostramos: primera, última, y las 3 alrededor de la actual
     const paginas = new Set();
     paginas.add(1);
     paginas.add(totalPaginas);
@@ -307,13 +306,39 @@ export function agregarPostAlInicio(post) {
     const lista = document.getElementById("lista");
     const li = document.createElement("li");
     li.dataset.postId = post.id;
-    li.textContent = post.title;
-    li.style.cursor = "pointer";
-    li.addEventListener("click", () => {
-        import("./router.js").then(router => {
-            router.navegarADetalle(post.id);
-        });
+    li.classList.add("post-card");
+
+    const descripcion = post.body
+        ? post.body.slice(0, 80) + (post.body.length > 80 ? "…" : "")
+        : "";
+
+    const nombreAutor = post.autor ?? "Autor";
+
+    li.innerHTML = `
+        <button class="post-card-fav" data-favorito-id="${post.id}" data-activo="false" title="Favorito">
+            ☆
+        </button>
+        <p class="post-card-title">${post.title}</p>
+        <p class="post-card-autor">${nombreAutor}</p>
+        <p class="post-card-desc">${descripcion}</p>
+        <button class="post-card-btn">Detalles</button>
+    `;
+
+    li.addEventListener("click", (e) => {
+        if (e.target.closest(".post-card-fav")) return;
+        import("./router.js").then(router => router.navegarADetalle(post.id));
     });
+
+    li.querySelector(".post-card-fav").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        const ahora = btn.dataset.activo === "true";
+        const nuevoEstado = !ahora;
+        toggleFavorito(post);
+        btn.dataset.activo = nuevoEstado ? "true" : "false";
+        btn.textContent = nuevoEstado ? "★" : "☆";
+    });
+
     lista.insertBefore(li, lista.firstChild);
 }
 
