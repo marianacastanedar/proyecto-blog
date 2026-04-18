@@ -326,7 +326,10 @@ export function agregarPostAlInicio(post) {
 
     li.addEventListener("click", (e) => {
         if (e.target.closest(".post-card-fav")) return;
-        import("./router.js").then(router => router.navegarADetalle(post.id));
+        import("./router.js").then(router => router.navegarADetalleConDatos(
+            post,
+            { firstName: post.autor ?? "", lastName: "" }
+        ));
     });
 
     li.querySelector(".post-card-fav").addEventListener("click", (e) => {

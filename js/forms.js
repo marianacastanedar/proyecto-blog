@@ -14,8 +14,21 @@ export function configurarFormularioCrear() {
         try {
             const postNuevo = await createPost(titulo, autor, contenido);
             mostrarToast("¡Post creado con éxito!");
-            agregarPostAlInicio({ ...postNuevo, autor });
-            setTimeout(() => navegarADetalleConDatos(postNuevo, { firstName: autor, lastName: "" }), 1500);
+
+            const postCompleto = {
+                ...postNuevo,
+                autor,
+                esLocal: true,
+                tags: postNuevo.tags ?? [],
+                views: postNuevo.views ?? 0,
+                reactions: postNuevo.reactions ?? { likes: 0, dislikes: 0 },
+            };
+
+            agregarPostAlInicio(postCompleto);
+            setTimeout(() => navegarADetalleConDatos(
+                postCompleto,
+                { firstName: autor, lastName: "" }
+            ), 1500);
         } catch {
             mostrarToast("Error al crear el post. Intenta de nuevo.");
         }
@@ -36,7 +49,20 @@ export function configurarFormularioEditar(post, autor) {
 
         renderEditarLoading(true);
         try {
-            const postActualizado = await updatePost(post.id, titulo, autorNombre, contenido);
+            let postFinal;
+
+            if(post.esLocal) {
+                postFinal = {
+                    ...post,
+                    title: titulo,
+                    body: contenido,
+                    autor: autorNombre,
+                };
+            } else {
+                const postActualizado = await updatePost(post.id, titulo, autorNombre, contenido);
+                postFinal = { ...post, ...postActualizado };
+            }
+             
             renderEditarLoading(false);
             const autorActualizado = { firstName: autorNombre, lastName: "" };
             const postFinal = { ...post, ...postActualizado };
