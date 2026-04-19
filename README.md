@@ -2,13 +2,9 @@
 
 Aplicación web de tipo blog que implementa CRUD completo sobre una API REST, construida con HTML, CSS y JavaScript Vanilla.
 
----
-
 ## Descripción
 
 **blogged.** permite listar, crear, editar y eliminar publicaciones consumiendo la API de [DummyJSON](https://dummyjson.com). La interfaz es navegable, con feedback visual al usuario en cada operación, organizada en módulos JavaScript con separación clara de responsabilidades.
-
----
 
 ## API utilizada
 
@@ -23,8 +19,6 @@ Aplicación web de tipo blog que implementa CRUD completo sobre una API REST, co
 | PATCH | `/posts/:id` | Editar publicación existente |
 | DELETE | `/posts/:id` | Eliminar publicación |
 
----
-
 ## Funcionalidades
 
 - Listado paginado de publicaciones (10 por página)
@@ -36,13 +30,9 @@ Aplicación web de tipo blog que implementa CRUD completo sobre una API REST, co
 - Sistema de favoritos con paginación propia
 - Feedback visual: spinner, toasts de éxito/error, estado vacío
 
----
-
 ## Sección adicional: Favoritos
 
 Implementamos una sección de **Favoritos** que permite al usuario guardar posts de interés y consultarlos en una vista dedicada. Se eligió esta sección porque agrega valor real a la experiencia de lectura: el usuario puede marcar posts desde el listado o el detalle, y acceder a todos sus guardados desde la barra de navegación. Los favoritos se sincronizan visualmente entre la lista principal y la vista de favoritos.
-
----
 
 ## Estructura del proyecto
 
@@ -68,8 +58,6 @@ proyecto-blog/
     └── state.js          ← estado global de la aplicación
 ```
 
----
-
 ## Instrucciones para correr el proyecto
 
 1. Cloná el repositorio:
@@ -81,10 +69,6 @@ proyecto-blog/
 4. Hacé clic derecho sobre `index.html` → **Open with Live Server**.
 5. La app abre en `http://127.0.0.1:5500/index.html`.
 
-> No se requiere instalar dependencias ni correr ningún comando de build. El proyecto corre directamente en el navegador.
-
----
-
 ## Integrantes
 
 | Nombre | Carné |
@@ -92,19 +76,14 @@ proyecto-blog/
 | Andrés Ismalej | 24005 |
 | Mariana Castañeda | 24481 |
 
----
-
 ## Demo en video
 
 🎥 [Ver video de demostración](https://youtu.be/AybkyXTz57I)
-
----
 
 ## Aplicación desplegada
 
 🌐 [Ver app en producción](#)
 
----
 
 ## Screenshot
 
