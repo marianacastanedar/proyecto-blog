@@ -82,7 +82,7 @@ proyecto-blog/
 
 ## Aplicación desplegada
 
-[Ver app en producción](#)
+[Ver app en producción](https://marianacastanedar.github.io/proyecto-blog)
 
 
 ## Screenshot
