@@ -78,11 +78,11 @@ proyecto-blog/
 
 ## Demo en video
 
-🎥 [Ver video de demostración](https://youtu.be/AybkyXTz57I)
+[Ver video de demostración](https://youtu.be/AybkyXTz57I)
 
 ## Aplicación desplegada
 
-🌐 [Ver app en producción](#)
+[Ver app en producción](#)
 
 
 ## Screenshot
