@@ -13,12 +13,14 @@ export async function cargarDetalle(id) {
     }
 }
 
-export async function manejarEliminar(id) {
+export async function manejarEliminar(id, esLocal = false) {
     const confirmado = await mostrarModalConfirmar();
     if (!confirmado) return;
 
     try {
-        await deletePost(id);
+        if (!esLocal) {
+            await deletePost(id);
+        }
         eliminarPostDeLista(id);
         mostrarToast("Publicación eliminada correctamente.");
         setTimeout(() => navegarALista(), 1500);

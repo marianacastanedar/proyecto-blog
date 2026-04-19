@@ -8,7 +8,6 @@ export function renderizarPosts(posts, esFavorito = () => false) {
     posts.forEach(post => {
         const li = document.createElement("li");
         li.dataset.postId = post.id;
- 
         const descripcion = post.body
             ? post.body.slice(0, 80) + (post.body.length > 80 ? "…" : "")
             : "";
@@ -141,7 +140,7 @@ export function renderizarDetalle(post, autor) {
 
     document.getElementById("btn-eliminar").addEventListener("click", () => {
         import("./detail.js").then(detail => {
-            detail.manejarEliminar(post.id);
+            detail.manejarEliminar(post.id, post.esLocal);
         });
     });
 }
