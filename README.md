@@ -87,5 +87,4 @@ proyecto-blog/
 
 ## Screenshot
 
-![Screenshot de la aplicación](screenshot.png)
-<!-- Reemplazá screenshot.png con una imagen real de la app -->
+![Screenshot de la aplicación](https://github.com/marianacastanedar/proyecto-blog/blob/09bf974a042ed93001afe4a9c9c1b51f9e9118e2/images/Home.png)
